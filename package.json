@@ -1,0 +1,28 @@
+{
+  "name": "mailbot",
+  "version": "1.0.0",
+  "description": "this is my first skype bot",
+  "main": "index.js",
+  
+  "author": "nauman.qazi",
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^3.1.1",
+    "googleapis": "^12.0.0",
+    "restify": "^4.1.1",
+    "yahoo-currency": "",
+    "promise-util-task": "",
+    "node-env-file": "",
+    "passport-google-oauth": ""
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
+  },
+  "scripts": {
+        "start": "node ./app.js ",
+      "lint": "jshint ./src/**.js",
+      "test": "mocha tests --recursive",
+      "monitor": "nodemon ./"
+
+  }
+}

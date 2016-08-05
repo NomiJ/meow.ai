@@ -81,8 +81,11 @@ function (session, args, next) {
 	
 	}else
 	{
+
+
 		var card = new builder.SigninCard(session);
-		card.button({title:['Connect','Paste the code that you get after authorization'], url:'https://github.com'});
+		card.button.title='Connect';
+		card.button.url='https://github.com';
 
 		var msg = new builder.Message(session)
 		

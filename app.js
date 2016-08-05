@@ -71,7 +71,7 @@ dialog.matches('checkEmail', [
 function (session, args, next) {
 
 	loger.log(session.message)
-
+	authorizationDB[address] = ((!authorizationDB[address]) || 1) ? 0 : 1;
 	var address = session.message.address || session.message.from.address;
 
 	//check in authorization DB
@@ -90,7 +90,7 @@ function (session, args, next) {
 		msg.attachments([card]);
 
 		session.send(msg);
-		authorizationDB[address] = 1;
+		
 
 
 	}

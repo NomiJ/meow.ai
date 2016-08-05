@@ -1,8 +1,8 @@
 {
-  "name": "mailbot",
+  "name": "meow.ai",
   "version": "1.0.0",
-  "description": "this is my first skype bot",
-  "main": "index.js",
+  "description": "a bot to fetch your email",
+  "main": "app.js",
   
   "author": "nauman.qazi",
   "license": "ISC",
@@ -19,7 +19,7 @@
     "chai": "^3.5.0"
   },
   "scripts": {
-        "start": "node ./app.js ",
+      "start": "node ./app.js ",
       "lint": "jshint ./src/**.js",
       "test": "mocha tests --recursive",
       "monitor": "nodemon ./"

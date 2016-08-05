@@ -2,9 +2,6 @@
 /* jshint node: true */
 
 
-
-var finance = require('./src/finance.js');
-var countrycodes = require('./src/countrycode.js');
 var builder = require('botbuilder');
 var restify = require('restify');
 var fs = require('fs');
@@ -20,15 +17,8 @@ if(!local){
 //=========================================================
 
 // Setup Restify Server
-// Setup some https server options
 
-var https_options = {
-        key: fs.readFileSync('./server.key'), //on current folder
-        certificate: fs.readFileSync('./server.crt')
-};
-
-    
-var server = restify.createServer(/*https_options*/);
+var server = restify.createServer();
 
 
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -38,8 +28,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
   
 // Create chat bot
 var connector = new builder.ChatConnector({
-    appId: local ? process.env.MICROSOFT_APP_ID : '23aacee8-e598-43d3-a422-7b069b2b0c61',
-    appPassword: local ? process.env.MICROSOFT_APP_PASSWORD : 'UJzbCZ3senXMBqBtoFZb9Ri'
+    appId: local ? process.env.MICROSOFT_APP_ID : 'd8f8c4ab-7087-4af7-91b0-2a60571006c2',
+    appPassword: local ? process.env.MICROSOFT_APP_PASSWORD : '9SoJSjMt9fSuGVEcDheCptw'
 });
 
 var bot = new builder.UniversalBot(connector);
@@ -52,7 +42,7 @@ server.get('/', function respond(req, res, next) {
 server.post('/api/messages', connector.listen());
 
 // Create LUIS recognizer that points at our model and add it as the root '/' dialog for our Cortana Bot.
-var model = 'https://api.projectoxford.ai/luis/v1/application?id=a6d98e70-c646-4bbe-93d1-f9082e0ed29b&subscription-key=2b826a013e3b4ddcac6330141e188d35';
+var model = 'https://api.projectoxford.ai/luis/v1/application?id=001644e2-8254-45af-9d7e-a42416bb61fd&subscription-key=2b826a013e3b4ddcac6330141e188d35';
 var recognizer = new builder.LuisRecognizer(model);
 var dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 
@@ -64,7 +54,6 @@ var intents = new builder.IntentDialog();
 bot.dialog('/', intents);
 */
 bot.dialog('/', dialog);
-dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand. Get Currency Codes from here https://developers.google.com/adwords/api/docs/appendix/currencycodes"));
 
 var loger = {
 	log:function(args){
@@ -73,40 +62,40 @@ var loger = {
 	}
 }
 
-dialog.matches('rate', [
+var authorizationDB={};
+
+dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand. I can only create & delete alarms."));
+
+
+dialog.matches('checkEmail', [
 function (session, args, next) {
 
-	var counteriesSchema = builder.EntityRecognizer.findEntity(args.entities, 'countryCode') ;
-	var currfrom;
-	var currto;
-	var curr =1;
-	loger.log(args);
+	loger.log(session.message)
 
-	if(counteriesSchema)
+	var address = session.message.address || session.message.from.address;
+
+	//check in authorization DB
+	if(authorizationDB[address] == 1)
 	{
+		session.send("Checking .... ");
+	
+	}else
+	{
+		var card = new builder.SigninCard(session);
+		card.button({title:['Connect','Paste the code that you get after authorization'], url:'https://github.com'});
 
-		var counteries = builder.EntityRecognizer.findAllEntities(args.entities, 'countryCode');
-
-		loger.log(counteries)
-
-		if(counteries.length == 2)
-		{
-			currfrom = counteries[0].entity;
-			currto= counteries[1].entity;
-			
-
-			loger.log(currfrom);
-			loger.log(currto);
+		var msg = new builder.Message(session)
 		
-			if(countrycodes.allexists([currfrom,currto])){
-				var input = currfrom.toUpperCase()+currto.toUpperCase();
-				
-		        finance.getrate(input)
-	            .then(function(data) {
-	            	var res = (curr * data[0].Rate);
-	               
-	                if(!local){
+		msg.textFormat(builder.TextFormat.xml)
+		msg.attachments([card]);
 
+		session.send(msg);
+		authorizationDB[address] = 1;
+
+
+	}
+
+	/*
 		                 var img = builder.CardImage.create(session, "https://bot-framework.azureedge.net/bot-icons-v1/bot-framework-default-10.png");
 		                 img.tap(builder.CardAction.openUrl(session, "www.systematicbytes.com"));
 		            
@@ -121,37 +110,8 @@ function (session, args, next) {
 		                 msg.attachments([card]);
 
 		                 session.send(msg);
-
-		             }else
-	    	         {
-	        	      	loger.log(res);
-						session.send(res);
-	             	}
-
-	            })
-        	}
-		}
-	}else
-		session.send("Oops.. kindly check your Currency Code")
+	*/
 	
-  },
-
-]);
-
-dialog.matches('changename', [
-function (session, args, next) {
-
-	var name = builder.EntityRecognizer.findEntity(args.entities, 'name') ? builder.EntityRecognizer.findEntity(args.entities, 'name').entity : '';
-	
-	if(name == ''){
-		name = "Johnny"
-	}
-
-	session.userData.name = name;
-
-	var str = "Yo %s";
-    session.send(str, session.userData.name);
-
   },
 
 ]);

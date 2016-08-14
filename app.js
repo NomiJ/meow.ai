@@ -81,17 +81,20 @@ function (session, args, next) {
 	
 	}else
 	{
-
+		//var img = new builder.CardImage.create(session, "./img/authorize.jpg");
+		//img.tap(builder.CardAction.openUrl(session, "www.systematicbytes.com"));
+		            
 
 		var card = new builder.SigninCard(session);
-		card.button.title='Connect';
-		card.button.url='https://github.com';
-
+		card.text("You need to authorize me");
+		card.button( "Connect","https://sb.com");
+		
 		var msg = new builder.Message(session)
 		
-		msg.textFormat(builder.TextFormat.xml)
+		msg.textFormat(builder.TextFormat.json)
 		msg.attachments([card]);
 
+		loger.log(card)
 		session.send(msg);
 		
 

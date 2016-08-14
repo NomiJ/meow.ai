@@ -7,7 +7,7 @@
   "author": "nauman.qazi",
   "license": "ISC",
   "dependencies": {
-    "botbuilder": "^3.1.1",
+    "botbuilder": "^3.2.2",
     "googleapis": "^12.0.0",
     "restify": "^4.1.1",
     "yahoo-currency": "",

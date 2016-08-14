@@ -1,0 +1,23 @@
+// tslint.json
+{
+  "extends": "tslint:recommended",
+  "rules": {
+     "no-console": [false,
+        "debug",
+        "info",
+        "time",
+        "timeEnd",
+        "trace"
+    ],
+    "no-empty": false,
+    "indent": [true, "spaces", 4],
+    "no-trailing-whitespace": true,
+    "quotemark": [true, "single"],
+    "whitespace": [true,
+        "check-branch",
+        "check-decl",
+        "check-operator",
+        "check-separator"
+    ]
+  }
+}

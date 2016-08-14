@@ -21,47 +21,58 @@ if(!local){
 // Setup Restify Server
 
 var server = restify.createServer({
-    formatters: {
-        
-        'text/html': function(req, res, body){
-            return body;
-        }
-    }
+	formatters: {
+
+		'text/html': function(req, res, body){
+			return body;
+		}
+	}
 });
 
 
-server.listen(process.env.port || process.env.PORT || 3978,  function () {
-   loger.log('%s listening to %s', server.name, server.url); 
+var content;
+fs.readFile('./sitecontent/html/index.html',  function (err, html) {
+	if (err) {
+		loger.log(err)
+		throw err;
+
+	}
+	content = html;
+	 
 });
 
 
 
-server.get('/authorize', function(request, response) {  
-		fs.readFile('./html/index.html', function (err, html) {
-    if (err) {
-        throw err; 
-    } 
+server
+.use(restify.fullResponse())
+.use(restify.bodyParser())
 
-	    response.writeHeader(200, {"Content-Type": "text/html", 'Content-Length': Buffer.byteLength(html)}); 
-	    loger.log(html)
-        response.write(html);  
-        response.end();  
-    
+var web = {
+	sendHtmlResponse:function(request, response, next, html){
+		response.writeHeader(200, {"Content-Type": "text/html", 'Content-Length': Buffer.byteLength(html)}); 
+		loger.log(html)
+		response.write(html);  
+		next();
+	}
+}
+
+server.get('/authorize', function(request, response, next) {  
+		web.sendHtmlResponse(request, response, next,content)
+
 });
-    });
 
 
-server.get('/', function respond(req, res, next) {
-				    loger.log('sending Hello World')
-            res.send('Hello World!');
-            res.end();
-        });
+server.get('/', function respond(request, response, next) {
+	var html = "Hello World";
+	web.sendHtmlResponse(request, response, next, html)
 
-  
+});
+
+
 // Create chat bot
 var connector = new builder.ChatConnector({
-    appId: local ? process.env.MICROSOFT_APP_ID : 'd8f8c4ab-7087-4af7-91b0-2a60571006c2',
-    appPassword: local ? process.env.MICROSOFT_APP_PASSWORD : '9SoJSjMt9fSuGVEcDheCptw'
+	appId: local ? process.env.MICROSOFT_APP_ID : 'd8f8c4ab-7087-4af7-91b0-2a60571006c2',
+	appPassword: local ? process.env.MICROSOFT_APP_PASSWORD : '9SoJSjMt9fSuGVEcDheCptw'
 });
 
 var bot = new builder.UniversalBot(connector);
@@ -86,8 +97,8 @@ bot.dialog('/', dialog);
 
 var loger = {
 	log:function(){
-	console.log.apply(console, arguments);
-	console.log("--------------------");
+		console.log.apply(console, arguments);
+		console.log("--------------------");
 	}
 }
 
@@ -97,17 +108,17 @@ dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being develope
 
 
 dialog.matches('checkEmail', [
-function (session, args, next) {
+	function (session, args, next) {
 
-	loger.log(session.message)
-	authorizationDB[address] = ((!authorizationDB[address]) || 1) ? 0 : 1;
-	var address = session.message.address || session.message.from.address;
+		loger.log(session.message)
+		authorizationDB[address] = ((!authorizationDB[address]) || 1) ? 0 : 1;
+		var address = session.message.address || session.message.from.address;
 
 	//check in authorization DB
 	if(authorizationDB[address] == 1)
 	{
 		session.send("Checking .... ");
-	
+
 	}else
 	{
 		
@@ -128,9 +139,12 @@ function (session, args, next) {
 	}
 
 	
-  },
+},
 
 ]);
 
+server.listen(process.env.port || process.env.PORT || 3978,  function () {
+	loger.log('%s listening to %s', server.name, server.url); 
+});
 
 

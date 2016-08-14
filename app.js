@@ -1,12 +1,11 @@
 "use strict";
 /* jshint node: true */
 
-//var Firebase = require("firebase");
 var builder = require('botbuilder');
 var restify = require('restify');
-var fs = require('fs');
+var fb = require('./src/firebase');
 
-//var myFirebaseRef = new Firebase("https://meow-59086.firebaseio.com/");
+var fs = require('fs');
 
 var local = process.env.LOCAL_ENV || false;
 console.log('The LOCAL_ENV is ' + local);
@@ -14,6 +13,22 @@ console.log('The LOCAL_ENV is ' + local);
 if(!local){
 	console.log = function() {}
 }
+
+var loger = {
+	log:function(){
+		console.log.apply(console, arguments);
+		console.log("--------------------");
+	}
+}
+fb.init('/token')
+fb.value().then(function(val){
+	
+	logger.log(val)
+
+})
+
+ 
+
 //=========================================================
 // Bot Setup
 //=========================================================
@@ -75,12 +90,7 @@ bot.dialog('/', intents);
 */
 bot.dialog('/', dialog);
 
-var loger = {
-	log:function(){
-		console.log.apply(console, arguments);
-		console.log("--------------------");
-	}
-}
+
 
 var authorizationDB={};
 

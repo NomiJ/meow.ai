@@ -20,38 +20,18 @@ if(!local){
 
 // Setup Restify Server
 
-var server = restify.createServer({
-	formatters: {
-
-		'text/html': function(req, res, body){
-			return body;
-		}
-	}
-});
+var server = restify.createServer();
 
 
-var content;
-fs.readFile('./sitecontent/html/index.html',  function (err, html) {
-	if (err) {
-		loger.log(err)
-		throw err;
-
-	}
-	content = html;
-	 
-});
+var content =fs.readFileSync('./sitecontent/html/index.html',{encoding: 'utf-8'});
 
 
-
-server
-.use(restify.fullResponse())
-.use(restify.bodyParser())
 
 var web = {
 	sendHtmlResponse:function(request, response, next, html){
-		response.writeHeader(200, {"Content-Type": "text/html", 'Content-Length': Buffer.byteLength(html)}); 
-		loger.log(html)
-		response.write(html);  
+		response.setHeader('Content-Type', 'text/html');
+        response.writeHead(200);
+        response.end(html);
 		next();
 	}
 }

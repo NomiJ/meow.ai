@@ -3,26 +3,25 @@
   "version": "1.0.0",
   "description": "a bot to fetch your email",
   "main": "app.js",
-  
   "author": "nauman.qazi",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^3.2.2",
+    "firebase": "^3.2.1",
     "googleapis": "^12.0.0",
-    "restify": "^4.1.1",
-    "yahoo-currency": "",
-    "promise-util-task": "",
     "node-env-file": "",
-    "passport-google-oauth": ""
+    "passport-google-oauth": "",
+    "promise-util-task": "",
+    "restify": "^4.1.1",
+    "yahoo-currency": ""
   },
   "devDependencies": {
     "chai": "^3.5.0"
   },
   "scripts": {
-      "start": "node ./app.js ",
-      "lint": "jshint ./src/**.js",
-      "test": "mocha tests --recursive",
-      "monitor": "nodemon ./"
-
+    "start": "node ./app.js ",
+    "lint": "jshint ./src/**.js",
+    "test": "mocha tests --recursive",
+    "monitor": "nodemon ./"
   }
 }

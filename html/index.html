@@ -1,0 +1,110 @@
+<html>
+<head>
+	<title>Meow Auth Me</title>
+
+ <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Share your pics. Powered by Firebase.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/images/favicon.png">
+
+  <!-- Disable tap highlight on IE -->
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- Web Application Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Add to home screen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Meow">
+  <meta name="theme-color" content="#303F9F">
+  <link rel="icon" sizes="192x192" href="/images/touch/touch-icon-192x192.png">
+  <link rel="icon" sizes="128x128" href="/images/touch/touch-icon-128x128.png">
+
+  <!-- Add to home screen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Web Starter Kit">
+  <link rel="apple-touch-icon" href="/images/touch/touch-icon-180x180.png">
+  <link rel="apple-touch-icon-precomposed" href="/images/touch/touch-icon-180x180.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303F9F">
+
+  <!-- Tile icon for Win8 -->
+  <meta name="msapplication-TileImage" content="/images/touch/touch-icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#3372DF">
+  <meta name="msapplication-navbutton-color" content="#303F9F">
+
+  <!-- Firebase UI Auth -->
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.css" />
+
+  <!-- Material Design Lite  -->
+  <link rel="stylesheet" href="/bower_components/material-design-lite/material.min.css">
+  <script defer src="/bower_components/material-design-lite/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <!-- Styling -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,300">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth:700">
+  <link rel="stylesheet" href="/styles/main.css">
+<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBhgvYzhzEpDrI2Uy4mj10VHd6I9Arze88",
+    authDomain: "meow-59086.firebaseapp.com",
+    databaseURL: "https://meow-59086.firebaseio.com",
+    storageBucket: "meow-59086.appspot.com",
+  };
+  firebase.initializeApp(config);
+</script>
+
+<!-- Firebase UI for Auth -->
+<script src="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.js"></script>
+<script type="text/javascript">
+  // FirebaseUI config.
+  var uiConfig = {
+    'signInSuccessUrl': '/',
+    'signInOptions': [
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.FacebookAuthProvider.PROVIDER_ID
+    ]
+  };
+  var ui = new firebaseui.auth.AuthUI(firebase.auth());
+  ui.start('#firebaseui-auth-container', uiConfig);
+</script>
+<script src="/lib/auth.js"></script>
+
+<!-- jQuery -->
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+
+<!-- Latinize -->
+<script src="/bower_components/latinize/latinize.js"></script>
+
+<!-- SweetAlert -->
+<script src="/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/bower_components/sweetalert/dist/sweetalert.css">
+
+</head>
+<body>
+
+	<!-- Theatre mode viewer -->
+<div class="fp-theatre"><img class="fp-fullpic"></div>
+
+<!-- Splash screen -->
+<section id="page-splash">
+  <h3 class="fp-logo"><i class="material-icons">photo</i>Meow</h3>
+  <div class="fp-caption">The easiest way to get your email in your BOT</div>
+  <div class="fp-signed-out-only fp-initially-hidden">
+    <div id="firebaseui-auth-container" class="fp-signed-out-only fp-initially-hidden"></div>
+  </div>
+</section>
+
+      <!-- Singed-in User Info -->
+      <a href="/"><button class="fp-sign-in-button fp-signed-out-only mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons">account_circle</i> Sign in</button></a>
+      <div class="fp-signed-in-user-container mdl-cell--hide-phone fp-signed-in-only">
+        <a class="fp-usernamelink mdl-button mdl-js-button">
+          <div class="fp-avatar"></div>
+          <div class="fp-username mdl-color-text--white"></div>
+        </a>
+      </div></body>
+</html>

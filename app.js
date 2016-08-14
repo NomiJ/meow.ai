@@ -1,10 +1,12 @@
 "use strict";
 /* jshint node: true */
 
-
+//var Firebase = require("firebase");
 var builder = require('botbuilder');
 var restify = require('restify');
 var fs = require('fs');
+
+//var myFirebaseRef = new Firebase("https://meow-59086.firebaseio.com/");
 
 var local = process.env.LOCAL_ENV || false;
 console.log('The LOCAL_ENV is ' + local);
@@ -18,12 +20,42 @@ if(!local){
 
 // Setup Restify Server
 
-var server = restify.createServer();
-
-
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+var server = restify.createServer({
+    formatters: {
+        
+        'text/html': function(req, res, body){
+            return body;
+        }
+    }
 });
+
+
+server.listen(process.env.port || process.env.PORT || 3978,  function () {
+   loger.log('%s listening to %s', server.name, server.url); 
+});
+
+
+
+server.get('/authorize', function(request, response) {  
+		fs.readFile('./html/index.html', function (err, html) {
+    if (err) {
+        throw err; 
+    } 
+
+	    response.writeHeader(200, {"Content-Type": "text/html", 'Content-Length': Buffer.byteLength(html)}); 
+	    loger.log(html)
+        response.write(html);  
+        response.end();  
+    
+});
+    });
+
+
+server.get('/', function respond(req, res, next) {
+				    loger.log('sending Hello World')
+            res.send('Hello World!');
+            res.end();
+        });
 
   
 // Create chat bot
@@ -35,9 +67,6 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector);
 
 
-server.get('/', function respond(req, res, next) {
-            res.send('Hello World!');
-        });
 
 server.post('/api/messages', connector.listen());
 
@@ -56,8 +85,8 @@ bot.dialog('/', intents);
 bot.dialog('/', dialog);
 
 var loger = {
-	log:function(args){
-	console.log(args);
+	log:function(){
+	console.log.apply(console, arguments);
 	console.log("--------------------");
 	}
 }
@@ -81,13 +110,10 @@ function (session, args, next) {
 	
 	}else
 	{
-		//var img = new builder.CardImage.create(session, "./img/authorize.jpg");
-		//img.tap(builder.CardAction.openUrl(session, "www.systematicbytes.com"));
-		            
-
+		
 		var card = new builder.SigninCard(session);
 		card.text("You need to authorize me");
-		card.button( "Connect","https://sb.com");
+		card.button( "Connect",server.url + "/authorize");
 		
 		var msg = new builder.Message(session)
 		

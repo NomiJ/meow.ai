@@ -9,10 +9,11 @@
         "timeEnd",
         "trace"
     ],
+    "object-literal-sort-keys": false,
     "no-empty": false,
     "indent": [true, "spaces", 4],
     "no-trailing-whitespace": true,
-    "quotemark": [true, "single"],
+    "quotemark": [false],
     "whitespace": [true,
         "check-branch",
         "check-decl",

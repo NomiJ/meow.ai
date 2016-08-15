@@ -84,7 +84,7 @@ bot.dialog('/', dialog);
 
 let authorizationDB: any = {};
 
-dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) ")); // tslint:disable-line
+dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
 
 dialog.matches('checkEmail', [
     function (session, args, next) {

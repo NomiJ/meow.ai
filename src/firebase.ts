@@ -10,10 +10,12 @@ export class Firebase {
         this.database = this.app.database().ref(root || '/');
     }
 
-    public value() {
-        return this.database.once('value').then((snapshot) => {
-                console.log(snapshot.val());
-                return snapshot.val();
-        });
+    public async value() {
+        try {
+            let snapshot = await this.database.once('value');
+            return snapshot.val();
+        } catch (err) {
+            console.error(err);
+        }
     }
 };

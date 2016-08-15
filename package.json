@@ -5,23 +5,26 @@
   "main": "app.js",
   "author": "nauman.qazi",
   "license": "ISC",
+
   "dependencies": {
     "botbuilder": "^3.2.3",
     "firebase": "^3.2.1",
+    "firebase-token-generator": "^2.0.0",
     "googleapis": "^12.0.0",
-    "node-env-file": "",
     "passport-google-oauth": "",
     "promise-util-task": "",
-    "restify": "^4.1.1",
-    "yahoo-currency": ""
+    "restify": "^4.1.1"
   },
+
   "devDependencies": {
-    "chai": "^3.5.0"
+    "chai": "^3.5.0",
+    "jasmine-core": "2.4.1"
   },
+
   "scripts": {
     "start": "ts-node ./src/app.ts",
     "lint": "tslint --project tsconfig.json",
-    "test": "mocha tests --recursive",
+    "test": "tsc tests/**.ts",
     "watch": "nodemon --exec ts-node -L ./src/app.ts"
   }
 }

@@ -6,7 +6,7 @@
   "author": "nauman.qazi",
   "license": "ISC",
   "dependencies": {
-    "botbuilder": "^3.2.2",
+    "botbuilder": "^3.2.3",
     "firebase": "^3.2.1",
     "googleapis": "^12.0.0",
     "node-env-file": "",
@@ -19,9 +19,9 @@
     "chai": "^3.5.0"
   },
   "scripts": {
-    "start": "node ./app.js ",
-    "lint": "jshint ./src/**.js",
+    "start": "ts-node ./src/app.ts",
+    "lint": "tslint --project tsconfig.json",
     "test": "mocha tests --recursive",
-    "monitor": "nodemon ./"
+    "watch": "nodemon --exec ts-node -L ./src/app.ts"
   }
 }

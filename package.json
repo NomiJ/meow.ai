@@ -5,7 +5,6 @@
   "main": "app.js",
   "author": "nauman.qazi",
   "license": "ISC",
-
   "dependencies": {
     "botbuilder": "^3.2.3",
     "firebase": "^3.2.1",
@@ -15,16 +14,16 @@
     "promise-util-task": "",
     "restify": "^4.1.1"
   },
-
   "devDependencies": {
     "chai": "^3.5.0",
+    "jasmine-await": "0.0.2",
     "jasmine-core": "2.4.1"
   },
-
   "scripts": {
     "start": "ts-node ./src/app.ts",
     "lint": "tslint --project tsconfig.json",
-    "test": "tsc tests/**.ts",
+    "tsc:w": "tsc --watch",
+    "test": "tsc && concurrently \"npm run tsc:w\" \"nodemon -d 1 -C -w dist/ --exec jasmine\"",
     "watch": "nodemon --exec ts-node -L ./src/app.ts"
   }
 }

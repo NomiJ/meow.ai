@@ -5,4 +5,8 @@ A Skype Bot which will make meow and me millions
 npm install -g typescript tslint typings ts-node
 npm link typescript
 typings install
+
+# testing
+npm install -g concurrently
+npm test
 ```

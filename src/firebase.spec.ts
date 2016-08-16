@@ -1,12 +1,13 @@
-import {Firebase} from './firebase';
+import { it } from 'jasmine-await';
+import { expect } from 'chai';
+import { Firebase } from './firebase';
+
 
 describe('Firebase', () => {
-	it('should have a value', () => {
-		let fb = new Firebase('/token');
-		fb.value().then((val) => {
-			expect(token).toEqual('Object');
-		}).catch((err) => {logger.log(err)});
+    it('should have a value', async () => {
+        let fb = new Firebase('/token');
+        let value = await fb.value();
 
-		
-	});
+        expect(value).to.eq('object');
+    });
 });

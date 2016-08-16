@@ -7,7 +7,7 @@ import {Firebase} from './firebase';
 import {User} from './user';
 import {logger} from './logger';
 import { FirebaseTokenGen } from './firebase-token';
-
+import {Authorize} from './authorize'
 import {Request, Response, Next} from 'restify';
 
 const local = process.env.LOCAL_ENV || false;
@@ -22,24 +22,16 @@ if (!local) {
 
 // Setup Restify Server
 let server = restify.createServer();
-const content = fs.readFileSync('./sitecontent/html/index.html', {encoding: 'utf-8'});
 
-let web  = {
-    sendHtmlResponse: (request: Request, response: Response, next: Next, html: string) => {
-        response.setHeader('Content-Type', 'text/html');
-        response.writeHead(200);
-        response.end(html);
-        next();
-    },
-};
 
-server.get('/authorize', function(request, response, next) {
-    web.sendHtmlResponse(request, response, next, content);
+server.use(restify.bodyParser());
+server.listen(process.env.port || process.env.PORT || 3978, function () {
+   console.log('%s listening to %s', server.name, server.url);
 });
 
 server.get('/', function respond(request, response, next) {
-    const html = 'Hello World';
-    web.sendHtmlResponse(request, response, next, html);
+   response.send('Hello World');
+   next();
 });
 
 
@@ -73,7 +65,7 @@ let dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 
 bot.dialog('/', dialog);
 
-let authorizationDB : { [id: string] : User; } = {};
+let authorize:Authorize = new Authorize();
 
 dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
 
@@ -82,25 +74,22 @@ dialog.matches('checkEmail', [
 
 
         l.log(session.message);
-        const userID = session.message.address.user.id;
-        let u = authorizationDB[userID]
+        const userID = session.message.user.id;
+        let u:User = authorize.getUser(userID)
 
         if(!u){
-           u = new User(session.message.address, new FirebaseTokenGen().generateToken(userID));
-           authorizationDB[userID] = u;
-
+           u = new User(JSON.stringify(session.message.address), JSON.stringify(session.message.user), new FirebaseTokenGen().generateToken(userID));
+           authorize.putUser(userID,u)
         }
 
         // check in authorization DB
         if (u.authorize) {
 
         } else {
-            l.log(u.token)
         
             let card = new builder.SigninCard(session);
             card.text('You need to authorize me');
-            let url = (server.url + "/authorize?token=" + u.token + "&");
-            l.log(url)
+            let url = (server.url + "/authorize/" + u.getToken());
             card.button("Connect",url)
 
             let msg = new builder.Message(session);
@@ -113,8 +102,3 @@ dialog.matches('checkEmail', [
         }
   },
 ]);
-
-
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url);
-});

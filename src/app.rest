@@ -1,0 +1,9 @@
+GET http://localhost:3978/
+User-Agent: test
+
+GET http://localhost:3978/authorize?token=1232321&
+User-Agent: nomi
+
+
+GET http://localhost:3978/authorize/1232321
+User-Agent: nomi

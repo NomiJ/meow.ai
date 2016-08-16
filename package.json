@@ -6,13 +6,19 @@
   "author": "nauman.qazi",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "botbuilder": "^3.2.3",
     "firebase": "^3.2.1",
     "firebase-token-generator": "^2.0.0",
     "googleapis": "^12.0.0",
     "passport-google-oauth": "",
     "promise-util-task": "",
-    "restify": "^4.1.1"
+    "restify": "^4.1.1",
+     "consolidate": "^0.13.1",
+    "express": "^4.13.3",
+    "handlebars": "^4.0.5",
+    "vio": "~0.2.0"
+
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -20,6 +26,7 @@
     "jasmine-core": "2.4.1"
   },
   "scripts": {
+    "launch": "ts-node ./src/server.ts",
     "start": "ts-node ./src/app.ts",
     "lint": "tslint --project tsconfig.json",
     "tsc:w": "tsc --watch",

@@ -4,13 +4,55 @@
     <meta charset="UTF-8">
     <title>{{title}}</title>
     <link rel="stylesheet" href="/static/style.css">
-</head>  
-<body>  
-   <body>
+<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBhgvYzhzEpDrI2Uy4mj10VHd6I9Arze88",
+    authDomain: "meow-59086.firebaseapp.com",
+    databaseURL: "https://meow-59086.firebaseio.com",
+    storageBucket: "meow-59086.appspot.com",
+  };
+  firebase.initializeApp(config);
+</script>
+
+<!-- Firebase UI for Auth -->
+<script src="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.js"></script>
+<script type="text/javascript">
+  // FirebaseUI config.
+  var uiConfig = {
+    'signInSuccessUrl': '/'+{{token}},
+    'signInOptions': [
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    ],
+     'idpConfig': {
+        "google.com": {scopes: ['https://www.googleapis.com/auth/gmail.readonly']}
+    }
+  };
+  var ui = new firebaseui.auth.AuthUI(firebase.auth());
+  ui.start('#firebaseui-auth-container', uiConfig);
+</script>
+
+
+</head>
+<body>
     <h1>{{title}}</h1>
     {{text}}
     <hr />
-    <small>param: {{param}}</small>
+    <small>Token: {{token}}</small>
+    <br/>
+
+  <!-- Theatre mode viewer -->
+<div class="fp-theatre"><img class="fp-fullpic"></div>
+
+<!-- Splash screen -->
+<section id="page-splash">
+  <div class="fp-signed-out-only fp-initially-hidden">
+    <div id="firebaseui-auth-container" class="fp-signed-out-only fp-initially-hidden"></div>
+  </div>
+</section>
+
+
 </body>
 </body>  
 </html>  

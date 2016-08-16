@@ -14,10 +14,14 @@ export default class extends Controller {
             return {
                 title: 'Meow.Authorize!',
                 text: 'Hello ' + user.getName(),
-                param: req.params['param'] || 'empty'
+                token: req.params['param'] || 'empty'
             };
         }
-
+        return {
+                title: 'Sorry!',
+                text: 'We are unable to find you in our systems',
+                token: req.params['param'] || 'empty'
+            };
     }
 
 }

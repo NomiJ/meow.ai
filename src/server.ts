@@ -4,14 +4,13 @@ import * as fs from 'fs';
 import {Firebase} from './firebase';
 import {logger} from './logger';
 import { FirebaseTokenGen } from './firebase-token';
-import {Authorize} from './authorize'
 import {User} from './user';
 import * as Path from 'path'
 import * as express from 'express';  
 import { handlebars } from 'consolidate';  
 import { Router } from 'vio';
 
-let authDB = new Authorize();
+let authDB = new Firebase(null);
 const local = process.env.LOCAL_ENV || false;
 
 var l = new logger();

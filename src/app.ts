@@ -7,14 +7,13 @@ import {Firebase} from './firebase';
 import {User} from './user';
 import {logger} from './logger';
 import { FirebaseTokenGen } from './firebase-token';
-import {Authorize} from './authorize'
 import {Request, Response, Next} from 'restify';
 
 const local = process.env.LOCAL_ENV || false;
 
 var l = new logger();
 if (!local) {
-    l.log = () => {};
+    l.log = () => { };
 }
 
 
@@ -26,12 +25,12 @@ let server = restify.createServer();
 
 server.use(restify.bodyParser());
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url);
+    console.log('%s listening to %s', server.name, server.url);
 });
 
 server.get('/', function respond(request, response, next) {
-   response.send('Hello World');
-   next();
+    response.send('Hello World');
+    next();
 });
 
 
@@ -58,47 +57,47 @@ let dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 
 
 // Bots Dialogs
-/*
-    var intents = new builder.IntentDialog();
-    bot.dialog('/', intents);
-*/
 
 bot.dialog('/', dialog);
 
-let authorize:Authorize = new Authorize();
-
+let fb = new Firebase(null);
 dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
 
 dialog.matches('checkEmail', [
+
     function (session, args, next) {
 
-
-        l.log(session.message);
-        const userID = session.message.user.id;
-        let u:User = authorize.getUser(userID)
-
-        if(!u){
-           u = new User(JSON.stringify(session.message.address), JSON.stringify(session.message.user), new FirebaseTokenGen().generateToken(userID));
-           authorize.putUser(userID,u)
-        }
-
-        // check in authorization DB
-        if (u.authorize) {
-
-        } else {
+        //l.log(session.message);
+        const userID = session.message.user.name+session.message.user.id;
+        let u: User;
         
-            let card = new builder.SigninCard(session);
-            card.text('You need to authorize me');
-            let url = (server.url + "/authorize/" + u.getToken());
-            card.button("Connect",url)
+        fb.value(userID).then((snap) => {
+            u = snap;
 
-            let msg = new builder.Message(session);
+            // check in authorization DB
+            if (!u.authorize) {
 
-            msg.textFormat(builder.TextFormat.xml);
-            msg.attachments([card]);
+                let url = (server.url + "/authorize/" + u.gettoken());
 
-            l.log(card);
-            session.send(msg);
-        }
-  },
+                let card = new builder.HeroCard(session);
+                card.text('You need to<a href="' + url + '">  authorize me  </a>');
+               
+                let msg = new builder.Message(session);
+
+                msg.textFormat(builder.TextFormat.xml);
+                msg.attachments([card]);
+
+                l.log(card);
+                session.send(msg);
+            }
+            else{
+                //Call Meow Api to get email 
+            }
+        }).catch((error) => { 
+            
+                u = new User(JSON.stringify(session.message.address), JSON.stringify(session.message.user), new FirebaseTokenGen().generateToken(userID));
+                fb.save(userID, u)
+            
+        })
+    },
 ]);

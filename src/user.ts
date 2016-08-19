@@ -1,7 +1,7 @@
 export class User{
 
 	private _authorize:Boolean= false;
-
+    private _oAuthToken:String = '';
 	constructor(private address:string, private user:string, private token:String){
 	}
 
@@ -9,11 +9,11 @@ export class User{
         return tok == this.token;
     }
 
-    getToken(){
+    gettoken(){
         return this.token;
     }
 
-    getName(){
+    getname(){
         return JSON.parse(this.user).name;
     }
 
@@ -27,5 +27,13 @@ export class User{
 
     set authorize(auth:Boolean) {
          this._authorize=auth;
+    }
+
+    get oauth_token():String {
+        return this._oAuthToken;
+    }
+
+    set oauth_token(auth:String) {
+         this._oAuthToken=auth;
     }
 }

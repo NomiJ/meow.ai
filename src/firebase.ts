@@ -1,6 +1,6 @@
 import * as firebase from 'firebase';
 import {config} from './firebase-config';
-
+import {User} from './user'
 
 export class Firebase {
     private app: firebase.app.App;
@@ -8,19 +8,31 @@ export class Firebase {
 
     constructor(root: string) {
         this.app = firebase.initializeApp(config);
-        this.database = this.app.database().ref(root || '/');
+        this.database = this.app.database().ref(root || '/users');
     }
 
-    public async value() {
-        try {
-            let snapshot = await this.database.once('value');
-            return snapshot.val();
-        } catch (err) {
-            throw err;
-        }
+    public save(userID: string, user: User) {
+        this.database.child(userID).set(user)
     }
 
-    public save(_obj:any){
-        this.database.push(_obj)
+    public async exists(userID:string){
+        return (this.database.child(userID))
+    }
+
+    public async value(userID: string) {
+      let snap = await this.database.child(userID).once('value');
+      return snap.val();
+    }
+
+    public async find(token: string) {
+        let u: User = null;
+        let snap = await this.database.orderByChild('token')
+            .startAt(token)
+            .endAt(token)
+            .once('value', function (snap) {
+                u = snap.val()
+            });
+
+        return u;
     }
 };

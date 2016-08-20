@@ -82,8 +82,11 @@ async function checkMail(session: builder.Session) {
 
             msg.text(text.join('n'));
         } else {
+            await fb.invite(uid);
+
             let card = new builder.HeroCard(session);
-            card.text(`You need to<a href="${server.url}/authorize?id=${uid}">authorize me</a>`);
+            const host = 'https://meowcoder.github.io/page/';
+            card.text(`You need to<a href="${host}?id=${uid}">authorize me</a>`);
 
             msg.textFormat(builder.TextFormat.xml);
             msg.text('');

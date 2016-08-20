@@ -19,6 +19,10 @@ export class Firebase {
         return (this.database.child(userID))
     }
 
+    public async invite(userID: string) {
+        await this.database.child(userID).set({accessToken: ''});
+    }
+
     public async value(userID: string) {
         try {
             let snap = await this.database.child(userID).once('value');

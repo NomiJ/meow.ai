@@ -1,13 +1,11 @@
 'use strict';
 
-import * as fs from 'fs';
 import * as builder from 'botbuilder';
 import * as restify from 'restify';
 import {Firebase} from './firebase';
-import {User} from './user';
 import {logger} from './logger';
 import { generate_token } from './utils';
-import {Request, Response, Next} from 'restify';
+import * as gmail from './gmail';
 
 const local = process.env.LOCAL_ENV || false;
 
@@ -65,28 +63,37 @@ dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being develope
 
 
 async function checkMail(session: builder.Session) {
-    // const userID = session.message.user.name + session.message.user.id;
-    const uid = generate_token([session.message.user.name, session.message.user.id]);
-    console.log(session.message);
+    try {
+        console.log(session.message);
+        const uid = generate_token([session.message.user.name, session.message.user.id]);
+        let accessToken = await fb.value(`${uid}/accessToken`);
 
-    let accessToken = await fb.value(`${uid}/accessToken`);
+        let msg = new builder.Message(session);
 
-    if (accessToken) {
-        //  Call Meow Api to get email
-        return;
+        if (accessToken) {
+            let client = new gmail.Client(accessToken);
+            let messages = await client.list();
+
+            let text: string[] = [];
+
+            for (let message of messages) {
+                text.push(message.subject);
+            }
+
+            msg.text(text.join('n'));
+        } else {
+            let card = new builder.HeroCard(session);
+            card.text(`You need to<a href="${server.url}/authorize?id=${uid}">authorize me</a>`);
+
+            msg.textFormat(builder.TextFormat.xml);
+            msg.text('');
+            msg.attachments([card]);
+        }
+
+        session.send(msg);
+    } catch (err) {
+        console.error(err);
     }
-
-    let card = new builder.HeroCard(session);
-    card.text(`You need to<a href="${server.url}/authorize?id=${uid}">authorize me</a>`);
-
-    let msg = new builder.Message(session);
-
-    msg.textFormat(builder.TextFormat.xml);
-    msg.text('');
-    msg.attachments([card]);
-
-    console.log('session send');
-    session.send(msg);
 }
 
 dialog.matches('checkEmail', [checkMail]);

@@ -6,12 +6,12 @@ import * as restify from 'restify';
 import {Firebase} from './firebase';
 import {User} from './user';
 import {logger} from './logger';
-import { FirebaseTokenGen } from './firebase-token';
+import { generate_token } from './utils';
 import {Request, Response, Next} from 'restify';
 
 const local = process.env.LOCAL_ENV || false;
 
-var l = new logger();
+let l = new logger();
 if (!local) {
     l.log = () => { };
 }
@@ -63,41 +63,30 @@ bot.dialog('/', dialog);
 let fb = new Firebase(null);
 dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
 
-dialog.matches('checkEmail', [
 
-    function (session, args, next) {
+async function checkMail(session: builder.Session) {
+    // const userID = session.message.user.name + session.message.user.id;
+    const uid = generate_token([session.message.user.name, session.message.user.id]);
+    console.log(session.message);
 
-        //l.log(session.message);
-        const userID = session.message.user.name+session.message.user.id;
-        let u: User;
-        
-        fb.value(userID).then((snap) => {
-            u = snap;
+    let accessToken = await fb.value(`${uid}/accessToken`);
 
-            // check in authorization DB
-            if (!u.authorize) {
+    if (accessToken) {
+        //  Call Meow Api to get email
+        return;
+    }
 
-                let url = (server.url + "/authorize/" + u.gettoken());
+    let card = new builder.HeroCard(session);
+    card.text(`You need to<a href="${server.url}/authorize?id=${uid}">authorize me</a>`);
 
-                let card = new builder.HeroCard(session);
-                card.text('You need to<a href="' + url + '">  authorize me  </a>');
-               
-                let msg = new builder.Message(session);
+    let msg = new builder.Message(session);
 
-                msg.textFormat(builder.TextFormat.xml);
-                msg.attachments([card]);
+    msg.textFormat(builder.TextFormat.xml);
+    msg.text('');
+    msg.attachments([card]);
 
-                l.log(card);
-                session.send(msg);
-            }
-            else{
-                //Call Meow Api to get email 
-            }
-        }).catch((error) => { 
-            
-                u = new User(JSON.stringify(session.message.address), JSON.stringify(session.message.user), new FirebaseTokenGen().generateToken(userID));
-                fb.save(userID, u)
-            
-        })
-    },
-]);
+    console.log('session send');
+    session.send(msg);
+}
+
+dialog.matches('checkEmail', [checkMail]);

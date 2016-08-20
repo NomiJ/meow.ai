@@ -1,6 +1,6 @@
 import * as firebase from 'firebase';
 import {config} from './firebase-config';
-import {User} from './user'
+import {User} from './user';
 
 export class Firebase {
     private app: firebase.app.App;
@@ -15,13 +15,17 @@ export class Firebase {
         this.database.child(userID).set(user)
     }
 
-    public async exists(userID:string){
+    public async exists(userID: string) {
         return (this.database.child(userID))
     }
 
     public async value(userID: string) {
-      let snap = await this.database.child(userID).once('value');
-      return snap.val();
+        try {
+            let snap = await this.database.child(userID).once('value');
+            return snap.val();
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     public async find(token: string) {

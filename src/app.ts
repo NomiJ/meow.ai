@@ -1,5 +1,6 @@
 'use strict';
 
+import * as url from 'url';
 import * as builder from 'botbuilder';
 import * as restify from 'restify';
 import {Firebase} from './firebase';
@@ -14,6 +15,7 @@ if (!local) {
     l.log = () => { };
 }
 
+let fb = new Firebase(null);
 
 // Bot Setup
 
@@ -26,8 +28,28 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
 
+
 server.get('/', function respond(request, response, next) {
     response.send('Hello World');
+    next();
+});
+
+
+server.get('/__/auth/handler', async function (request, response, next) {
+    const parts = url.parse(request.url, true);
+    const query = parts.query;
+
+    let client = new gmail.Client();
+    const tokens = await client.tokensFromAuthRedirect(query.code);
+
+    await fb.setCredentials(query.state, tokens);
+
+    response.header("Content-Type", "text/html");
+    response.write(`
+        code: ${query.code}<br>
+        uid: ${query.state}<br>
+        <pre>${JSON.stringify(tokens, null, 4)}</pre>
+    `);
     next();
 });
 
@@ -58,7 +80,6 @@ let dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 
 bot.dialog('/', dialog);
 
-let fb = new Firebase(null);
 dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
 
 
@@ -66,13 +87,14 @@ async function checkMail(session: builder.Session) {
     try {
         console.log(session.message);
         const uid = generate_token([session.message.user.name, session.message.user.id]);
-        let accessToken = await fb.value(`${uid}/accessToken`);
+        let credentials = await fb.value(uid);
 
         let msg = new builder.Message(session);
+        let mail = new gmail.Client(credentials);
 
-        if (accessToken) {
-            let client = new gmail.Client(accessToken);
-            let messages = await client.list();
+        // TODO: credentials can be invalid and still "true"
+        if (credentials) {
+            let messages = await mail.list();
 
             let text: string[] = [];
 
@@ -82,11 +104,10 @@ async function checkMail(session: builder.Session) {
 
             msg.text(text.join('n'));
         } else {
-            await fb.invite(uid);
+            const url = mail.generateAuthUrl(uid);
 
             let card = new builder.HeroCard(session);
-            const host = 'https://meowcoder.github.io/page/';
-            card.text(`You need to<a href="${host}?id=${uid}">authorize me</a>`);
+            card.text(`You need to<a href="${url}">authorize me</a>`);
 
             msg.textFormat(builder.TextFormat.xml);
             msg.text('');

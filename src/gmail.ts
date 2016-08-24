@@ -5,23 +5,46 @@ import { credentials } from './gmail.config';
 
 export class Client {
     private api: any;
+    private oauth2: any;
 
-    constructor(token: string) {
-        let auth = new googleAuth();
-        let oauth2 = new auth.OAuth2(
+    constructor(creds?: {string: string}) {
+        this.oauth2 = new google.auth.OAuth2(
             credentials.client_id,
             credentials.client_secret,
             credentials.redirect_uris[0]
         );
 
-        oauth2.credentials = {access_token: token};
+        if (creds) {
+            this.oauth2.setCredentials(creds);
+        }
 
         this.api = google.gmail({
             version: 'v1',
-            auth: oauth2,
+            auth: this.oauth2,
             params: {userId: 'me'}
         });
     }
+
+    public generateAuthUrl(uid: string) {
+        return this.oauth2.generateAuthUrl({
+            access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
+            scope: 'https://www.googleapis.com/auth/gmail.readonly',
+            state: uid
+        });
+    }
+
+    public tokensFromAuthRedirect(code: string) {
+        return new Promise<any>((resolve, reject) => {
+            this.oauth2.getToken(code, (err: any, tokens: any) => {
+                if (err) {
+                    reject(new Error(`The oauth2 API returned an error: ${err}`));
+                }  else {
+                    resolve(tokens);
+                }
+            });
+        });
+    }
+
 
     public async list(n=10) {
         let request = await this.gmail('users.messages.list', {maxResults: n});

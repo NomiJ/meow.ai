@@ -12,15 +12,15 @@ export class Firebase {
     }
 
     public save(userID: string, user: User) {
-        this.database.child(userID).set(user)
+        this.database.child(userID).set(user);
     }
 
     public async exists(userID: string) {
-        return (this.database.child(userID))
+        return (this.database.child(userID));
     }
 
-    public async invite(userID: string) {
-        await this.database.child(userID).set({accessToken: ''});
+    public async setCredentials(userID: string, credentials: {string: any}) {
+        await this.database.child(userID).set(credentials);
     }
 
     public async value(userID: string) {

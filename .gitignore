@@ -45,3 +45,4 @@ dist
 
 # config files
 src/gmail.config.ts
+src/app.config.ts

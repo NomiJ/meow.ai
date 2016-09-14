@@ -1,6 +1,5 @@
 'use strict';
 
-import * as url from 'url';
 import * as builder from 'botbuilder';
 import * as restify from 'restify';
 import {Firebase} from './firebase';
@@ -23,7 +22,9 @@ let fb = new Firebase(null);
 let server = restify.createServer();
 
 
+server.use(restify.queryParser());
 server.use(restify.bodyParser());
+
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
@@ -36,20 +37,34 @@ server.get('/', function respond(request, response, next) {
 
 
 server.get('/__/auth/handler', async function (request, response, next) {
-    const parts = url.parse(request.url, true);
-    const query = parts.query;
+    
+    const query = request.params;
 
-    let client = new gmail.Client();
-    const tokens = await client.tokensFromAuthRedirect(query.code);
+    if(query.state)
+    {
 
-    await fb.setCredentials(query.state, tokens);
+        let uid = query.state
+        let code = query.code
 
+        let client = new gmail.Client();
+        const tokens = await client.tokensFromAuthRedirect(code);
+        await fb.setCredentials(uid, tokens);
+        response.send("<b>Thanks you can close this page now</b>")
+
+    }
+    else{
+        response.send("<b>We are so not able to authenticate you</b>")
+        
+    }
+
+    /*
     response.header("Content-Type", "text/html");
     response.write(`
         code: ${query.code}<br>
         uid: ${query.state}<br>
         <pre>${JSON.stringify(tokens, null, 4)}</pre>
     `);
+    */
     next();
 });
 
@@ -71,6 +86,7 @@ const luis = {
     key: '2b826a013e3b4ddcac6330141e188d35',
     url: 'https://api.projectoxford.ai/luis/v1/application',
 };
+
 const model = `${luis.url}?id=${luis.id}&subscription-key=${luis.key}`;
 let recognizer = new builder.LuisRecognizer(model);
 let dialog = new builder.IntentDialog({ recognizers: [recognizer] });
@@ -80,12 +96,13 @@ let dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 
 bot.dialog('/', dialog);
 
-dialog.onDefault(builder.DialogAction.send("Hold your horses, I'm being developed ;) "));
+dialog.onDefault(builder.DialogAction.send("Hey There, I'm being developed ;) "));
 
 
 async function checkMail(session: builder.Session) {
     try {
         console.log(session.message);
+        const maxNumber = 3;
         const uid = generate_token([session.message.user.name, session.message.user.id]);
         let credentials = await fb.value(uid);
 
@@ -94,24 +111,40 @@ async function checkMail(session: builder.Session) {
 
         // TODO: credentials can be invalid and still "true"
         if (credentials) {
-            let messages = await mail.list();
+            let messages = await mail.list(maxNumber);
 
-            let text: string[] = [];
+            let cards: builder.HeroCard[] = [];
 
             for (let message of messages) {
-                text.push(message.subject);
-            }
+                
+                let action = builder.CardAction.openUrl(session, "mail.google.com")
+                
+                let img = builder.CardImage.create(session, "https://bot-framework.azureedge.net/bot-icons-v1/bot-framework-default-10.png");
+                img.tap(action);
+                
+                let card = new builder.HeroCard(session);
+                console.log(message)
+                
+                card.title(message.subject)
+                card.subtitle("<i>" + message.from + "</i> | " + message.date)
+                card.text(message.snippet)
+                card.images([img]);
 
-            msg.text(text.join('n'));
+                cards.push(card)
+                
+                
+            }
+            msg.attachmentLayout("carousel")
+            msg.attachments(cards);
         } else {
             const url = mail.generateAuthUrl(uid);
-
-            let card = new builder.HeroCard(session);
-            card.text(`You need to<a href="${url}">authorize me</a>`);
-
+            console.log(url)
             msg.textFormat(builder.TextFormat.xml);
-            msg.text('');
-            msg.attachments([card]);
+            msg.attachments([ 
+                new builder.SigninCard(session) 
+                    .text("You need to authorize me'") 
+                    .button("signin", url) 
+            ]); 
         }
 
         session.send(msg);
